@@ -48,14 +48,14 @@
 }
 
 .footer-link:hover {
-  color: #00ffae;
-  border-bottom-color: #00ffae;
-  background: rgba(0, 255, 174, 0.1);
+  color: #EA48B4;
+  border-bottom-color: #EA48B4;
+  background: rgba(234, 72, 180, 0.1);
 }
 
 .vapi-link:hover {
-  color: #00ffae;
-  border-bottom-color: #00ffae;
+  color: #EA48B4;
+  border-bottom-color: #EA48B4;
 }
 
 .external-icon {
