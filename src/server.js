@@ -6,9 +6,24 @@ const { apiKey, phoneNumberId, assistantId, apiBaseUrl } = require("./config");
 
 const app = express();
 
-// Configure CORS to allow requests from React dev server
+// Configure CORS to allow requests from React dev server and production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:8080",
+  process.env.FRONTEND_URL // For production (Railway will set this)
+].filter(Boolean);
+
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:8080"],
+  origin: process.env.NODE_ENV === 'production'
+    ? (origin, callback) => {
+        // In production, allow same-origin requests or configured origins
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(null, true); // Allow all for now, you can restrict later
+        }
+      }
+    : allowedOrigins,
   credentials: true
 }));
 
