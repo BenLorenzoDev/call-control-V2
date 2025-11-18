@@ -23,16 +23,6 @@ const Footer = () => {
             Tambayan PH
             <ExternalLink size={12} className="external-icon" />
           </a>
-          {' '} | Powered by{' '}
-          <a
-            href="https://vapi.ai/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-link vapi-link"
-          >
-            @vapi
-            <ExternalLink size={12} className="external-icon" />
-          </a>
         </p>
       </div>
     </motion.footer>
