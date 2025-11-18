@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ExternalLink, Heart } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import './Footer.css';
 
 const Footer = () => {
@@ -13,24 +13,14 @@ const Footer = () => {
     >
       <div className="footer-content">
         <p className="footer-text">
-          Built with <Heart size={14} className="heart-icon" /> by{' '}
-          <a
-            href="https://www.youtube.com/@jonasmassieAI"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="footer-link"
-          >
-            @jonasmassieai
-            <ExternalLink size={12} className="external-icon" />
-          </a>
-          {' '} | Improved by{' '}
+          © 2025{' '}
           <a
             href="https://tambayanph.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-link"
           >
-            TambayanPH
+            Tambayan PH
             <ExternalLink size={12} className="external-icon" />
           </a>
           {' '} | Powered by{' '}
