@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const axios = require("axios");
-const { apiKey, phoneNumberId, assistantId, apiBaseUrl } = require("./config");
+const { apiKey, phoneNumberId, assistantId, apiBaseUrl, webhookUrl } = require("./config");
 
 const app = express();
 
@@ -141,8 +141,8 @@ app.post("/initiate-call", async (req, res) => {
 
 app.post("/control-call", async (req, res) => {
   const { controlUrl, ...payload } = req.body;
-  console.log("Received controlUrl:", controlUrl); 
-  console.log("Payload:", payload); 
+  console.log("Received controlUrl:", controlUrl);
+  console.log("Payload:", payload);
 
   try {
     await controlCall(controlUrl, payload);
@@ -150,6 +150,47 @@ app.post("/control-call", async (req, res) => {
   } catch (error) {
     console.error("Error controlling call:", error.response?.data || error.message);
     res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post("/submit-disposition", async (req, res) => {
+  try {
+    console.log("Received disposition data:", req.body);
+
+    // If no webhook URL is configured, just log the data
+    if (!webhookUrl || webhookUrl === "") {
+      console.log("No webhook URL configured. Disposition data logged only.");
+      return res.status(200).json({
+        success: true,
+        message: "Disposition saved (no webhook configured)"
+      });
+    }
+
+    // Forward disposition data to configured webhook
+    const response = await axios.post(webhookUrl, req.body, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      timeout: 10000, // 10 second timeout
+    });
+
+    console.log("Webhook response:", response.status, response.data);
+
+    res.status(200).json({
+      success: true,
+      message: "Disposition submitted successfully",
+      webhookResponse: response.data
+    });
+  } catch (error) {
+    console.error("Error submitting disposition to webhook:", error.message);
+
+    // Even if webhook fails, we don't want to fail the disposition submission
+    // Log the error but return success to the client
+    res.status(200).json({
+      success: true,
+      message: "Disposition saved (webhook error logged)",
+      error: error.message
+    });
   }
 });
 
