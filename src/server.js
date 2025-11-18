@@ -83,6 +83,9 @@ async function initiateCall(phoneNumber, customerName) {
     };
 
     console.log("Payload being sent to Vapi:", JSON.stringify(payload, null, 2));
+    console.log("Using API Key:", apiKey ? `${apiKey.substring(0, 10)}...` : "NOT SET");
+    console.log("Using phoneNumberId:", phoneNumberId);
+    console.log("Using assistantId:", assistantId);
 
     const response = await axios.post(`${apiBaseUrl}/call`, payload, {
       headers: {
@@ -97,7 +100,10 @@ async function initiateCall(phoneNumber, customerName) {
     const callData = await pollCallStatus(callId);
     return callData;
   } catch (error) {
-    console.error("Error initiating call:", error.response?.data || error.message);
+    console.error("Error initiating call:");
+    console.error("Status:", error.response?.status);
+    console.error("Response data:", JSON.stringify(error.response?.data, null, 2));
+    console.error("Message:", error.message);
     throw error;
   }
 }
@@ -122,7 +128,14 @@ app.post("/initiate-call", async (req, res) => {
     res.status(200).json({ success: true, ...callData });
   } catch (error) {
     console.error("Error initiating call:", error.message);
-    res.status(500).json({ success: false, error: error.message });
+    const statusCode = error.response?.status || 500;
+    const errorMessage = error.response?.data?.message || error.message;
+    const errorDetails = error.response?.data || {};
+    res.status(statusCode).json({
+      success: false,
+      error: errorMessage,
+      details: errorDetails
+    });
   }
 });
 
