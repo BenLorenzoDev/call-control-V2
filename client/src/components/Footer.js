@@ -14,19 +14,29 @@ const Footer = () => {
       <div className="footer-content">
         <p className="footer-text">
           Built with <Heart size={14} className="heart-icon" /> by{' '}
-          <a 
-            href="https://www.youtube.com/@jonasmassieAI" 
-            target="_blank" 
+          <a
+            href="https://www.youtube.com/@jonasmassieAI"
+            target="_blank"
             rel="noopener noreferrer"
             className="footer-link"
           >
             @jonasmassieai
             <ExternalLink size={12} className="external-icon" />
           </a>
+          {' '} | Improved by{' '}
+          <a
+            href="https://tambayanph.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-link"
+          >
+            TambayanPH
+            <ExternalLink size={12} className="external-icon" />
+          </a>
           {' '} | Powered by{' '}
-          <a 
-            href="https://vapi.ai/" 
-            target="_blank" 
+          <a
+            href="https://vapi.ai/"
+            target="_blank"
             rel="noopener noreferrer"
             className="footer-link vapi-link"
           >
