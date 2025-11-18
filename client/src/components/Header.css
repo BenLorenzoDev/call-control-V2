@@ -29,8 +29,8 @@
   color: #fff;
   letter-spacing: -0.04em;
   margin: 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+  text-shadow: 0 4px 20px rgba(234, 72, 180, 0.5);
+  background: linear-gradient(135deg, #FF00FF 0%, #EA48B4 50%, #C026D3 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
