@@ -33,7 +33,6 @@ const Footer = () => {
             @vapi
             <ExternalLink size={12} className="external-icon" />
           </a>
-          {' '} | #BuildWithVapi
         </p>
       </div>
     </motion.footer>
