@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, VolumeX, Play, Square, Headphones } from 'lucide-react';
 
-const LiveListening = ({ callData }) => {
+const LiveListening = ({ callData, onCallEnded }) => {
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -90,9 +90,15 @@ const LiveListening = ({ callData }) => {
         }
       };
 
-      wsRef.current.onclose = () => {
-        console.log("WebSocket connection closed.");
+      wsRef.current.onclose = (event) => {
+        console.log("WebSocket connection closed.", event);
         stopAudio();
+
+        // If the connection closed unexpectedly (customer hung up), notify parent
+        if (event.code !== 1000 && onCallEnded) {
+          console.log("Call ended by customer - triggering disposition");
+          onCallEnded({ endedBy: 'customer' });
+        }
       };
 
       wsRef.current.onerror = (error) => {

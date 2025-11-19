@@ -26,6 +26,10 @@ function MainPage() {
     // Store disposition data in sessionStorage for the disposition page
     sessionStorage.setItem('dispositionData', JSON.stringify(dispositionData));
 
+    // Reset call state
+    setIsCallActive(false);
+    setCallData(null);
+
     // Navigate to disposition page
     navigate('/disposition');
   };
@@ -55,6 +59,7 @@ function MainPage() {
           >
             <LiveListening
               callData={callData}
+              onCallEnded={handleCallEnded}
             />
           </motion.div>
         </div>
