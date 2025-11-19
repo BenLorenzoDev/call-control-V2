@@ -63,6 +63,35 @@ body {
   margin: 0 auto;
 }
 
+/* ===== NEW GRID LAYOUT ===== */
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.top-row-item {
+  width: 100%;
+}
+
+.bottom-row {
+  width: 100%;
+}
+
+.bottom-row .glass-card.call-controls-card {
+  max-width: 100%;
+  min-width: unset;
+}
+
 /* ===== GLASS CARD BASE ===== */
 .glass-card {
   background: rgba(0, 0, 0, 0.6);
@@ -578,41 +607,47 @@ body {
   .main-content {
     padding: 1rem 0.75rem;
   }
-  
+
   .cards-container {
     flex-direction: column;
     align-items: center;
     gap: 1.25rem;
     max-width: 420px;
   }
-  
+
+  /* Grid layout responsive */
+  .top-row {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
   .glass-card {
     min-width: 300px;
     max-width: 100%;
     padding: 1.5rem;
     min-height: auto;
   }
-  
+
   .glass-card.call-controls-card {
     max-width: 100%;
     min-width: 300px;
   }
-  
+
   .call-controls-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .call-controls-status-section {
     align-items: flex-start;
   }
-  
+
   .listen-url-compact {
     max-width: 100%;
     text-align: left;
   }
-  
+
   .btn-group {
     flex-direction: column;
     gap: 0.5rem;

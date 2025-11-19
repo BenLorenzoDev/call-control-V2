@@ -23,40 +23,15 @@ const CallControls = ({ callData, onCallEnded }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // If no call data, show inactive state
-  if (!callData) {
-    return (
-      <div className="glass-card call-controls-card">
-        <div className="call-controls-header">
-          <div className="call-controls-title-section">
-            <h2 className="card-title call-controls-title">
-              <Settings className="inline-icon" />
-              Call Controls
-            </h2>
-            <p className="card-subtitle call-controls-subtitle">Advanced call management</p>
-          </div>
-
-          <div className="call-controls-status-section">
-            <div className="status-indicator compact status-inactive">
-              No Active Call
-            </div>
-          </div>
-        </div>
-
-        <div className="call-controls-content">
-          <p style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
-            Initiate a call to access controls
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isCallActive = !!callData;
 
   const getControlUrl = (listenUrl) => {
     return listenUrl.replace("/listen", "/control").replace("wss://", "https://");
   };
 
   const sendControlRequest = async (payload, actionType) => {
+    if (!isCallActive) return;
+
     setIsLoading(prev => ({ ...prev, [actionType]: true }));
     setError('');
     setSuccess('');
@@ -72,11 +47,11 @@ const CallControls = ({ callData, onCallEnded }) => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setSuccess(`${actionType} successful!`);
         setTimeout(() => setSuccess(''), 3000);
-        
+
         // Clear input fields after successful actions
         if (actionType === 'say') setSayMessage('');
         if (actionType === 'add-message') setAddMessageContent('');
@@ -145,13 +120,13 @@ const CallControls = ({ callData, onCallEnded }) => {
           </h2>
           <p className="card-subtitle call-controls-subtitle">Advanced call management</p>
         </div>
-        
+
         <div className="call-controls-status-section">
-          <div className="status-indicator compact status-active">
-            <div className="pulse-dot"></div>
-            Call Active
+          <div className={`status-indicator compact ${isCallActive ? 'status-active' : 'status-inactive'}`}>
+            {isCallActive && <div className="pulse-dot"></div>}
+            {isCallActive ? 'Call Active' : 'No Active Call'}
           </div>
-          {callData.listenUrl && (
+          {isCallActive && callData.listenUrl && (
             <div className="listen-url-compact">
               {callData.listenUrl}
             </div>
@@ -195,14 +170,14 @@ const CallControls = ({ callData, onCallEnded }) => {
               onChange={(e) => setSayMessage(e.target.value)}
               placeholder="Enter message for assistant to say"
               className="form-input"
-              disabled={isLoading.say}
+              disabled={!isCallActive || isLoading.say}
             />
             <motion.button
               onClick={handleSay}
               className="btn btn-primary"
-              disabled={!sayMessage.trim() || isLoading.say}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={!isCallActive || !sayMessage.trim() || isLoading.say}
+              whileHover={{ scale: (!isCallActive || !sayMessage.trim() || isLoading.say) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isCallActive || !sayMessage.trim() || isLoading.say) ? 1 : 0.98 }}
             >
               {isLoading.say ? (
                 <>Loading...</>
@@ -229,13 +204,13 @@ const CallControls = ({ callData, onCallEnded }) => {
               onChange={(e) => setAddMessageContent(e.target.value)}
               placeholder="Message content"
               className="form-input"
-              disabled={isLoading['add-message']}
+              disabled={!isCallActive || isLoading['add-message']}
             />
             <select
               value={addMessageRole}
               onChange={(e) => setAddMessageRole(e.target.value)}
               className="form-select"
-              disabled={isLoading['add-message']}
+              disabled={!isCallActive || isLoading['add-message']}
             >
               <option value="system">System</option>
               <option value="user">User</option>
@@ -244,9 +219,9 @@ const CallControls = ({ callData, onCallEnded }) => {
             <motion.button
               onClick={handleAddMessage}
               className="btn btn-secondary"
-              disabled={!addMessageContent.trim() || isLoading['add-message']}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={!isCallActive || !addMessageContent.trim() || isLoading['add-message']}
+              whileHover={{ scale: (!isCallActive || !addMessageContent.trim() || isLoading['add-message']) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isCallActive || !addMessageContent.trim() || isLoading['add-message']) ? 1 : 0.98 }}
             >
               {isLoading['add-message'] ? (
                 <>Loading...</>
@@ -273,7 +248,7 @@ const CallControls = ({ callData, onCallEnded }) => {
               onChange={(e) => setTransferNumber(e.target.value)}
               placeholder="Destination number (e.g., +1234567890)"
               className="form-input"
-              disabled={isLoading.transfer}
+              disabled={!isCallActive || isLoading.transfer}
             />
             <input
               type="text"
@@ -281,14 +256,14 @@ const CallControls = ({ callData, onCallEnded }) => {
               onChange={(e) => setTransferMessage(e.target.value)}
               placeholder="Transfer message"
               className="form-input"
-              disabled={isLoading.transfer}
+              disabled={!isCallActive || isLoading.transfer}
             />
             <motion.button
               onClick={handleTransfer}
               className="btn btn-secondary"
-              disabled={!transferNumber.trim() || isLoading.transfer}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={!isCallActive || !transferNumber.trim() || isLoading.transfer}
+              whileHover={{ scale: (!isCallActive || !transferNumber.trim() || isLoading.transfer) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isCallActive || !transferNumber.trim() || isLoading.transfer) ? 1 : 0.98 }}
             >
               {isLoading.transfer ? (
                 <>Transferring...</>
@@ -309,9 +284,9 @@ const CallControls = ({ callData, onCallEnded }) => {
             <motion.button
               onClick={() => handleAssistantControl('mute-assistant')}
               className="btn btn-secondary"
-              disabled={isLoading['mute-assistant']}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={!isCallActive || isLoading['mute-assistant']}
+              whileHover={{ scale: (!isCallActive || isLoading['mute-assistant']) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isCallActive || isLoading['mute-assistant']) ? 1 : 0.98 }}
             >
               <MicOff size={16} className="inline-icon" />
               Mute
@@ -319,9 +294,9 @@ const CallControls = ({ callData, onCallEnded }) => {
             <motion.button
               onClick={() => handleAssistantControl('unmute-assistant')}
               className="btn btn-secondary"
-              disabled={isLoading['unmute-assistant']}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={!isCallActive || isLoading['unmute-assistant']}
+              whileHover={{ scale: (!isCallActive || isLoading['unmute-assistant']) ? 1 : 1.02 }}
+              whileTap={{ scale: (!isCallActive || isLoading['unmute-assistant']) ? 1 : 0.98 }}
             >
               <Mic size={16} className="inline-icon" />
               Unmute
@@ -330,9 +305,9 @@ const CallControls = ({ callData, onCallEnded }) => {
           <motion.button
             onClick={() => handleAssistantControl('say-first-message')}
             className="btn btn-secondary"
-            disabled={isLoading['say-first-message']}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            disabled={!isCallActive || isLoading['say-first-message']}
+            whileHover={{ scale: (!isCallActive || isLoading['say-first-message']) ? 1 : 1.02 }}
+            whileTap={{ scale: (!isCallActive || isLoading['say-first-message']) ? 1 : 0.98 }}
           >
             <Play size={16} className="inline-icon" />
             Say First Message
@@ -344,9 +319,9 @@ const CallControls = ({ callData, onCallEnded }) => {
           <motion.button
             onClick={handleEndCall}
             className="btn btn-danger"
-            disabled={isLoading['end-call']}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            disabled={!isCallActive || isLoading['end-call']}
+            whileHover={{ scale: (!isCallActive || isLoading['end-call']) ? 1 : 1.02 }}
+            whileTap={{ scale: (!isCallActive || isLoading['end-call']) ? 1 : 0.98 }}
           >
             <PhoneOff size={16} className="inline-icon" />
             {isLoading['end-call'] ? 'Ending Call...' : 'End Call'}

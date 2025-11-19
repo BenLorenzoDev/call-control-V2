@@ -32,39 +32,43 @@ function MainPage() {
 
   return (
     <main className="main-content">
-      <div className="cards-container">
-        {/* Dialer - Always visible */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <CallForm
-            onCallInitiated={handleCallInitiated}
-            isCallActive={isCallActive}
-          />
-        </motion.div>
+      <div className="main-layout">
+        {/* Top Row: Dialer + Live Listening */}
+        <div className="top-row">
+          <motion.div
+            className="top-row-item"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <CallForm
+              onCallInitiated={handleCallInitiated}
+              isCallActive={isCallActive}
+            />
+          </motion.div>
 
-        {/* Controls - Always visible */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <CallControls
-            callData={callData}
-            onCallEnded={handleCallEnded}
-          />
-        </motion.div>
+          <motion.div
+            className="top-row-item"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <LiveListening
+              callData={callData}
+            />
+          </motion.div>
+        </div>
 
-        {/* Live Listening - Always visible */}
+        {/* Bottom Row: Call Controls (Full Width) */}
         <motion.div
+          className="bottom-row"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <LiveListening
+          <CallControls
             callData={callData}
+            onCallEnded={handleCallEnded}
           />
         </motion.div>
       </div>
