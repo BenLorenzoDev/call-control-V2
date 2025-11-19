@@ -9,6 +9,34 @@ const LiveListening = ({ callData }) => {
   const audioContextRef = useRef(null);
   const wsRef = useRef(null);
 
+  // If no call data, show inactive state
+  if (!callData) {
+    return (
+      <div className="glass-card">
+        <div className="card-header">
+          <h2 className="card-title">
+            <Headphones className="inline-icon" />
+            Live Listening
+          </h2>
+          <p className="card-subtitle">
+            No active call
+          </p>
+        </div>
+
+        <div className="status-section">
+          <div className="status-indicator status-inactive">
+            <VolumeX size={16} className="inline-icon" />
+            Not Available
+          </div>
+        </div>
+
+        <p style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
+          Initiate a call to start listening
+        </p>
+      </div>
+    );
+  }
+
   const startAudio = async () => {
     if (wsRef.current) {
       console.warn("Audio is already playing.");

@@ -23,6 +23,35 @@ const CallControls = ({ callData, onCallEnded }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // If no call data, show inactive state
+  if (!callData) {
+    return (
+      <div className="glass-card call-controls-card">
+        <div className="call-controls-header">
+          <div className="call-controls-title-section">
+            <h2 className="card-title call-controls-title">
+              <Settings className="inline-icon" />
+              Call Controls
+            </h2>
+            <p className="card-subtitle call-controls-subtitle">Advanced call management</p>
+          </div>
+
+          <div className="call-controls-status-section">
+            <div className="status-indicator compact status-inactive">
+              No Active Call
+            </div>
+          </div>
+        </div>
+
+        <div className="call-controls-content">
+          <p style={{ textAlign: 'center', color: '#888', padding: '2rem' }}>
+            Initiate a call to access controls
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const getControlUrl = (listenUrl) => {
     return listenUrl.replace("/listen", "/control").replace("wss://", "https://");
   };
