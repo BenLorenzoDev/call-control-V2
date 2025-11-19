@@ -8,6 +8,7 @@ const LiveListening = ({ callData, onCallEnded }) => {
   const [error, setError] = useState('');
   const audioContextRef = useRef(null);
   const wsRef = useRef(null);
+  const manualStopRef = useRef(false); // Track if user manually stopped listening
 
   // If no call data, show inactive state
   if (!callData) {
@@ -94,11 +95,15 @@ const LiveListening = ({ callData, onCallEnded }) => {
         console.log("WebSocket connection closed.", event);
         stopAudio();
 
+        // Only trigger call ended if this wasn't a manual stop by the user
         // If the connection closed unexpectedly (customer hung up), notify parent
-        if (event.code !== 1000 && onCallEnded) {
+        if (!manualStopRef.current && event.code !== 1000 && onCallEnded) {
           console.log("Call ended by customer - triggering disposition");
           onCallEnded({ endedBy: 'customer' });
         }
+
+        // Reset the manual stop flag
+        manualStopRef.current = false;
       };
 
       wsRef.current.onerror = (error) => {
@@ -115,19 +120,24 @@ const LiveListening = ({ callData, onCallEnded }) => {
     }
   };
 
-  const stopAudio = async () => {
-    console.log("Stopping audio.");
-    
+  const stopAudio = async (isManual = false) => {
+    console.log("Stopping audio.", isManual ? "(Manual stop)" : "(Automatic)");
+
+    // Mark as manual stop if user initiated it
+    if (isManual) {
+      manualStopRef.current = true;
+    }
+
     if (audioContextRef.current) {
       await audioContextRef.current.close();
       audioContextRef.current = null;
     }
-    
+
     if (wsRef.current) {
       wsRef.current.close();
       wsRef.current = null;
     }
-    
+
     setIsListening(false);
     setIsLoading(false);
   };
@@ -197,7 +207,7 @@ const LiveListening = ({ callData, onCallEnded }) => {
           </motion.button>
         ) : (
           <motion.button
-            onClick={stopAudio}
+            onClick={() => stopAudio(true)}
             className="btn btn-danger"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
