@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import CallForm from '../components/CallForm';
@@ -17,6 +17,37 @@ function MainPage() {
     setIsCallActive(true);
     isEndingRef.current = false;
   };
+
+  const handleCallEnded = useCallback((finalCallData = {}) => {
+    // Prevent multiple triggers
+    if (isEndingRef.current && !finalCallData.endedBy) {
+      return;
+    }
+    isEndingRef.current = true;
+
+    // Clear polling interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
+    // When call ends, navigate to disposition page
+    const dispositionData = {
+      ...callData,
+      ...finalCallData,
+      callEndTime: new Date().toISOString(),
+    };
+
+    // Store disposition data in sessionStorage for the disposition page
+    sessionStorage.setItem('dispositionData', JSON.stringify(dispositionData));
+
+    // Reset call state
+    setIsCallActive(false);
+    setCallData(null);
+
+    // Navigate to disposition page
+    navigate('/disposition');
+  }, [callData, navigate]);
 
   // Poll call status to detect when customer ends the call
   useEffect(() => {
@@ -46,38 +77,7 @@ function MainPage() {
         }
       };
     }
-  }, [isCallActive, callData?.callId]);
-
-  const handleCallEnded = (finalCallData = {}) => {
-    // Prevent multiple triggers
-    if (isEndingRef.current && !finalCallData.endedBy) {
-      return;
-    }
-    isEndingRef.current = true;
-
-    // Clear polling interval
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-
-    // When call ends, navigate to disposition page
-    const dispositionData = {
-      ...callData,
-      ...finalCallData,
-      callEndTime: new Date().toISOString(),
-    };
-
-    // Store disposition data in sessionStorage for the disposition page
-    sessionStorage.setItem('dispositionData', JSON.stringify(dispositionData));
-
-    // Reset call state
-    setIsCallActive(false);
-    setCallData(null);
-
-    // Navigate to disposition page
-    navigate('/disposition');
-  };
+  }, [isCallActive, callData?.callId, handleCallEnded]);
 
   return (
     <main className="main-content">
