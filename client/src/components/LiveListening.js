@@ -92,14 +92,14 @@ const LiveListening = ({ callData, onCallEnded }) => {
       };
 
       wsRef.current.onclose = (event) => {
-        console.log("WebSocket connection closed.", event);
+        console.log("WebSocket connection closed.", event.code, event.reason);
         stopAudio();
 
         // Only trigger call ended if this wasn't a manual stop by the user
-        // If the connection closed unexpectedly (customer hung up), notify parent
-        if (!manualStopRef.current && event.code !== 1000 && onCallEnded) {
-          console.log("Call ended by customer - triggering disposition");
-          onCallEnded({ endedBy: 'customer' });
+        // If the connection closed (customer hung up or call ended), notify parent
+        if (!manualStopRef.current && onCallEnded) {
+          console.log("Call ended detected via WebSocket close - triggering disposition");
+          onCallEnded({ endedBy: 'websocket-close' });
         }
 
         // Reset the manual stop flag

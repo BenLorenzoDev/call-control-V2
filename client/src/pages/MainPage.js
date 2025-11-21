@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import CallForm from '../components/CallForm';
@@ -9,13 +9,58 @@ function MainPage() {
   const navigate = useNavigate();
   const [callData, setCallData] = useState(null);
   const [isCallActive, setIsCallActive] = useState(false);
+  const pollingIntervalRef = useRef(null);
+  const isEndingRef = useRef(false);
 
   const handleCallInitiated = (data) => {
     setCallData(data);
     setIsCallActive(true);
+    isEndingRef.current = false;
   };
 
+  // Poll call status to detect when customer ends the call
+  useEffect(() => {
+    if (isCallActive && callData?.callId) {
+      pollingIntervalRef.current = setInterval(async () => {
+        try {
+          const response = await fetch(`/call-status/${callData.callId}`);
+          const data = await response.json();
+
+          if (data.success && data.status === 'ended' && !isEndingRef.current) {
+            console.log('Call ended detected via polling:', data);
+            isEndingRef.current = true;
+            clearInterval(pollingIntervalRef.current);
+            handleCallEnded({
+              endedBy: data.endedReason || 'customer',
+              duration: data.duration
+            });
+          }
+        } catch (error) {
+          console.error('Error polling call status:', error);
+        }
+      }, 3000); // Poll every 3 seconds
+
+      return () => {
+        if (pollingIntervalRef.current) {
+          clearInterval(pollingIntervalRef.current);
+        }
+      };
+    }
+  }, [isCallActive, callData?.callId]);
+
   const handleCallEnded = (finalCallData = {}) => {
+    // Prevent multiple triggers
+    if (isEndingRef.current && !finalCallData.endedBy) {
+      return;
+    }
+    isEndingRef.current = true;
+
+    // Clear polling interval
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+
     // When call ends, navigate to disposition page
     const dispositionData = {
       ...callData,

@@ -153,6 +153,33 @@ app.post("/control-call", async (req, res) => {
   }
 });
 
+// Get call status endpoint for polling
+app.get("/call-status/:callId", async (req, res) => {
+  try {
+    const { callId } = req.params;
+
+    const response = await axios.get(`${apiBaseUrl}/call/${callId}`, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+
+    const callData = response.data;
+    res.status(200).json({
+      success: true,
+      status: callData.status,
+      endedReason: callData.endedReason || null,
+      duration: callData.duration || null
+    });
+  } catch (error) {
+    console.error("Error getting call status:", error.response?.data || error.message);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 app.post("/submit-disposition", async (req, res) => {
   try {
     console.log("Received disposition data:", req.body);
