@@ -52,28 +52,37 @@ function MainPage() {
   // Poll call status to detect when customer ends the call
   useEffect(() => {
     if (isCallActive && callData?.callId) {
+      console.log('Starting call status polling for callId:', callData.callId);
+
       pollingIntervalRef.current = setInterval(async () => {
         try {
           const response = await fetch(`/call-status/${callData.callId}`);
           const data = await response.json();
 
-          if (data.success && data.status === 'ended' && !isEndingRef.current) {
+          console.log('Poll response:', data);
+
+          // Check for various end states
+          const endedStatuses = ['ended', 'completed', 'failed', 'busy', 'no-answer'];
+
+          if (data.success && endedStatuses.includes(data.status) && !isEndingRef.current) {
             console.log('Call ended detected via polling:', data);
             isEndingRef.current = true;
             clearInterval(pollingIntervalRef.current);
             handleCallEnded({
               endedBy: data.endedReason || 'customer',
-              duration: data.duration
+              duration: data.duration,
+              finalStatus: data.status
             });
           }
         } catch (error) {
           console.error('Error polling call status:', error);
         }
-      }, 3000); // Poll every 3 seconds
+      }, 2000); // Poll every 2 seconds for faster detection
 
       return () => {
         if (pollingIntervalRef.current) {
           clearInterval(pollingIntervalRef.current);
+          console.log('Stopped call status polling');
         }
       };
     }

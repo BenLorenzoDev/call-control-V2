@@ -165,6 +165,8 @@ app.get("/call-status/:callId", async (req, res) => {
     });
 
     const callData = response.data;
+    console.log(`Call ${callId} status: ${callData.status}, endedReason: ${callData.endedReason || 'N/A'}`);
+
     res.status(200).json({
       success: true,
       status: callData.status,
